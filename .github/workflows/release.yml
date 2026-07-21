@@ -226,7 +226,9 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" release-assets/* --verify-tag --generate-notes --title "Ghostbuster ${GITHUB_REF_NAME#v}"
+        run: >-
+          gh release create "$GITHUB_REF_NAME" release-assets/* --repo "$GITHUB_REPOSITORY"
+          --verify-tag --generate-notes --title "Ghostbuster ${GITHUB_REF_NAME#v}"
 
   pypi:
     name: Publish PyPI wheels
