@@ -1,0 +1,87 @@
+[package]
+name = "ghostbuster"
+version = "0.1.0"
+description = "Find dead Python code with Ruff's Rust parser"
+authors = ["Mazdak Rezvani"]
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/mazdak/ghostbuster"
+repository = "https://github.com/mazdak/ghostbuster"
+keywords = ["dead-code", "lint", "python", "ruff", "vulture"]
+categories = ["command-line-utilities", "development-tools"]
+publish = false
+
+[dependencies]
+clap = { version = "4.5.54", features = ["derive"] }
+codepage-strings = "1.0.2"
+encoding_rs = "0.8.35"
+get-size2 = "=0.10.1"
+globset = "0.4.18"
+ignore = "0.4.25"
+ruff_python_ast = { path = "vendor/ruff/crates/ruff_python_ast", version = "0.0.5" }
+ruff_python_parser = { path = "vendor/ruff/crates/ruff_python_parser", version = "0.0.5" }
+ruff_source_file = { path = "vendor/ruff/crates/ruff_source_file", version = "0.0.5" }
+ruff_text_size = { path = "vendor/ruff/crates/ruff_text_size", version = "0.0.5" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+thiserror = "2.0.17"
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"
+tempfile = "3.23.0"
+
+[lints.rust]
+unsafe_code = "forbid"
+unreachable_pub = "warn"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -2 }
+char_lit_as_u8 = "allow"
+collapsible_else_if = "allow"
+collapsible_if = "allow"
+implicit_hasher = "allow"
+map_unwrap_or = "allow"
+match_same_arms = "allow"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+similar_names = "allow"
+single_match_else = "allow"
+too_many_lines = "allow"
+collapsible_match = "allow"
+needless_continue = "allow"
+unnecessary_debug_formatting = "allow"
+needless_raw_string_hashes = "allow"
+iter_over_hash_type = "warn"
+print_stdout = "warn"
+print_stderr = "warn"
+dbg_macro = "warn"
+empty_drop = "warn"
+empty_structs_with_brackets = "warn"
+exit = "warn"
+get_unwrap = "warn"
+rc_buffer = "warn"
+rc_mutex = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+redundant_clone = "warn"
+debug_assert_with_mut_call = "warn"
+unused_peekable = "warn"
+if_not_else = "allow"
+
+[profile.release]
+lto = "fat"
+codegen-units = 16
+overflow-checks = true
+strip = "symbols"
+
+[profile.release.package.ruff_python_parser]
+codegen-units = 1
+
+[profile.release.package.ruff_python_ast]
+codegen-units = 1
+
+[profile.dev.package.ruff_python_parser]
+opt-level = 1

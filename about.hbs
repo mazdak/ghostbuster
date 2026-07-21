@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ghostbuster third-party licenses</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 2rem auto; max-width: 72rem; padding: 0 1rem; }
+    a { color: #1677c8; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #8888; padding: .4rem; text-align: left; }
+    pre { border: 1px solid #8888; max-height: 24rem; overflow: auto; padding: 1rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Ghostbuster third-party licenses</h1>
+  <p>Generated from the locked Cargo dependency graph with cargo-about.</p>
+  <p>Vendored Ruff and Vulture test-data provenance is described separately in <code>THIRD_PARTY.md</code>.</p>
+  <h2>Components</h2>
+  <table>
+    <thead><tr><th>Package</th><th>Version</th><th>License</th></tr></thead>
+    <tbody>
+    {{#each crates}}
+      <tr>
+        <td><a href="{{#if package.repository}}{{package.repository}}{{else}}https://crates.io/crates/{{package.name}}{{/if}}">{{package.name}}</a></td>
+        <td>{{package.version}}</td>
+        <td>{{license}}</td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+  <h2>License texts</h2>
+  {{#each overview}}
+    <h3 id="{{id}}">{{name}}</h3>
+    <pre>{{text}}</pre>
+  {{/each}}
+</body>
+</html>

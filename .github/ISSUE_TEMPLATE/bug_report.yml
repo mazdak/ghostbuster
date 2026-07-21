@@ -1,0 +1,53 @@
+name: Bug report
+description: Report an incorrect finding, missed finding, crash, or CLI problem
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a Ghostbuster problem.
+  - type: input
+    id: version
+    attributes:
+      label: Ghostbuster version
+      placeholder: ghostbuster 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation method
+      options:
+        - GitHub release
+        - PyPI / uv tool
+        - Cargo / source checkout
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Minimal Python source
+      description: Remove secrets and reduce the example as far as practical.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      render: console
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system and architecture
+      placeholder: macOS 15 arm64
+    validations:
+      required: true

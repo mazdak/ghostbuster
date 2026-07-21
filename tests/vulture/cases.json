@@ -1,0 +1,1146 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "https://github.com/jendrikseipp/vulture",
+    "revision": "2c21cb0ae2afa657e36f6a397cb573608a65d79e",
+    "describe": "v2.16-3-g2c21cb0"
+  },
+  "cases": [
+    {
+      "id": "unused-import",
+      "upstream_test": "tests/test_confidence.py::test_confidence_import",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import foo\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "import",
+          "code": "V104",
+          "name": "foo",
+          "message": "unused import 'foo'",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "id": "import-threshold-90-inclusive",
+      "upstream_test": "tests/test_confidence.py::test_confidence_import",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import foo\n"
+        }
+      ],
+      "parse_valid": true,
+      "min_confidence": 90,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "import",
+          "code": "V104",
+          "name": "foo",
+          "message": "unused import 'foo'",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "id": "import-filtered-at-100",
+      "upstream_test": "tests/test_confidence.py::test_confidence_import",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import foo\n"
+        }
+      ],
+      "parse_valid": true,
+      "min_confidence": 100,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": []
+    },
+    {
+      "id": "unused-class",
+      "upstream_test": "tests/test_item.py::test_item_class",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Foo:\n    pass\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 2,
+          "kind": "class",
+          "code": "V102",
+          "name": "Foo",
+          "message": "unused class 'Foo'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "unused-function",
+      "upstream_test": "tests/test_item.py::test_item_function",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "def add(a, b):\n    return a + b\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 2,
+          "kind": "function",
+          "code": "V103",
+          "name": "add",
+          "message": "unused function 'add'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "unused-method",
+      "upstream_test": "tests/test_scavenging.py::test_async_method",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Foo:\n    def bar(self):\n        pass\n\nFoo()\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 2,
+          "end_line": 3,
+          "kind": "method",
+          "code": "V105",
+          "name": "bar",
+          "message": "unused method 'bar'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "unused-property",
+      "upstream_test": "tests/test_confidence.py::test_confidence_props",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Foo:\n    @property\n    def value(self):\n        pass\n\nFoo()\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 2,
+          "end_line": 4,
+          "kind": "property",
+          "code": "V106",
+          "name": "value",
+          "message": "unused property 'value'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "unused-variable",
+      "upstream_test": "tests/test_item.py::test_item_variable",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "value = 1\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "variable",
+          "code": "V107",
+          "name": "value",
+          "message": "unused variable 'value'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "unused-attribute",
+      "upstream_test": "tests/test_item.py::test_item_attr",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "obj.value = 1\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "attribute",
+          "code": "V101",
+          "name": "value",
+          "message": "unused attribute 'value'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "unused-argument-at-100",
+      "upstream_test": "tests/test_confidence.py::test_function_arg",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "def foo(arg):\n    return 1\n\nfoo(1)\n"
+        }
+      ],
+      "parse_valid": true,
+      "min_confidence": 100,
+      "code_projection": [
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "variable",
+          "code": "V107",
+          "name": "arg",
+          "message": "unused variable 'arg'",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "variable-filtered-above-60",
+      "upstream_test": "tests/test_confidence.py::test_function_arg",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "value = 1\n"
+        }
+      ],
+      "parse_valid": true,
+      "min_confidence": 61,
+      "code_projection": [
+        "V107"
+      ],
+      "expected": []
+    },
+    {
+      "id": "star-and-future-imports-ignored",
+      "upstream_test": "tests/test_imports.py::test_import_star; tests/test_imports.py::test_import_from_future",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "from __future__ import annotations\nfrom package import *\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": []
+    },
+    {
+      "id": "all-marks-selected-import-used",
+      "upstream_test": "tests/test_imports.py::test_import_with__all__",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "from package import Foo, Bar\n\n__all__ = [\"Foo\"]\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "import",
+          "code": "V104",
+          "name": "Bar",
+          "message": "unused import 'Bar'",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "id": "all-string-does-not-mark-import-used",
+      "upstream_test": "tests/test_imports.py::test_import_with__all__string",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "from package import Foo, Bar\n\n__all__ = \"Foo\"\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "import",
+          "code": "V104",
+          "name": "Bar",
+          "message": "unused import 'Bar'",
+          "confidence": 90
+        },
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "import",
+          "code": "V104",
+          "name": "Foo",
+          "message": "unused import 'Foo'",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "id": "init-module-imports-ignored",
+      "upstream_test": "tests/test_imports.py::test_ignore_init_py_files",
+      "files": [
+        {
+          "path": "pkg/__init__.py",
+          "source": "import bar\nfrom zoo import zebra\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": []
+    },
+    {
+      "id": "nested-import-top-level-name-used",
+      "upstream_test": "tests/test_imports.py::test_nested_import",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import os.path\nos.path.join(\"a\", \"b\")\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": []
+    },
+    {
+      "id": "aliased-import-used",
+      "upstream_test": "tests/test_imports.py::test_import_alias_use_alias",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import package as alias\nalias.run()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": []
+    },
+    {
+      "id": "cross-file-function-used",
+      "upstream_test": "tests/test_imports.py::test_import_original_use_original",
+      "files": [
+        {
+          "path": "lib.py",
+          "source": "def helper():\n    pass\n"
+        },
+        {
+          "path": "app.py",
+          "source": "from lib import helper\n\nhelper()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V103",
+        "V104"
+      ],
+      "expected": []
+    },
+    {
+      "id": "cross-file-function-unused",
+      "upstream_test": "tests/test_imports.py::test_import_original",
+      "files": [
+        {
+          "path": "lib.py",
+          "source": "def helper():\n    pass\n"
+        },
+        {
+          "path": "app.py",
+          "source": "import lib\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V103"
+      ],
+      "expected": [
+        {
+          "path": "lib.py",
+          "start_line": 1,
+          "end_line": 2,
+          "kind": "function",
+          "code": "V103",
+          "name": "helper",
+          "message": "unused function 'helper'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "cross-file-same-name-compatibility",
+      "upstream_test": "tests/test_scavenging.py::test_function_and_method1 (adapted across files)",
+      "files": [
+        {
+          "path": "left.py",
+          "source": "def helper():\n    pass\n"
+        },
+        {
+          "path": "right.py",
+          "source": "def helper():\n    pass\n"
+        },
+        {
+          "path": "main.py",
+          "source": "helper()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V103"
+      ],
+      "note": "Vulture's global bare-name model marks both definitions as used.",
+      "expected": []
+    },
+    {
+      "id": "getattr-string-marks-name-used",
+      "upstream_test": "tests/test_scavenging.py::test_getattr",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Thing:\n    used = 1\n    unused = 2\n\ngetattr(Thing, \"used\")\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "variable",
+          "code": "V107",
+          "name": "unused",
+          "message": "unused variable 'unused'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "hasattr-string-marks-attribute-used",
+      "upstream_test": "tests/test_scavenging.py::test_getattr",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "Thing.flag = True\nhasattr(Thing, \"flag\")\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V101"
+      ],
+      "expected": []
+    },
+    {
+      "id": "attribute-load-marks-attribute-used",
+      "upstream_test": "tests/test_scavenging.py::test_callback1 (adapted)",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "obj.value = 1\nprint(obj.value)\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V101"
+      ],
+      "expected": []
+    },
+    {
+      "id": "class-and-static-methods",
+      "upstream_test": "tests/test_scavenging.py::test_method1",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Foo:\n    @classmethod\n    def build(cls):\n        pass\n\n    @staticmethod\n    def parse():\n        pass\n\nFoo()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V105"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 2,
+          "end_line": 4,
+          "kind": "method",
+          "code": "V105",
+          "name": "build",
+          "message": "unused method 'build'",
+          "confidence": 60
+        },
+        {
+          "path": "case.py",
+          "start_line": 6,
+          "end_line": 8,
+          "kind": "method",
+          "code": "V105",
+          "name": "parse",
+          "message": "unused method 'parse'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "dunder-method-ignored",
+      "upstream_test": "tests/test_scavenging.py::test_method1 (adapted)",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Foo:\n    def __str__(self):\n        return \"Foo\"\n\n    def unused(self):\n        pass\n\nFoo()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V105"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 5,
+          "end_line": 6,
+          "kind": "method",
+          "code": "V105",
+          "name": "unused",
+          "message": "unused method 'unused'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "underscore-and-dunder-variables",
+      "upstream_test": "tests/test_scavenging.py::test_ignored_variables",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "_ = 0\n_hidden = 1\n__private = 2\n__magic__ = 3\nvisible = 4\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "variable",
+          "code": "V107",
+          "name": "__private",
+          "message": "unused variable '__private'",
+          "confidence": 60
+        },
+        {
+          "path": "case.py",
+          "start_line": 5,
+          "end_line": 5,
+          "kind": "variable",
+          "code": "V107",
+          "name": "visible",
+          "message": "unused variable 'visible'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "test-functions-and-classes-ignored",
+      "upstream_test": "tests/test_scavenging.py::test_function_names_in_test_file",
+      "files": [
+        {
+          "path": "tests/test_sample.py",
+          "source": "def test_feature():\n    pass\n\ndef helper():\n    pass\n\nclass TestWidget:\n    pass\n\nclass Helper:\n    pass\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V102",
+        "V103"
+      ],
+      "expected": [
+        {
+          "path": "tests/test_sample.py",
+          "start_line": 4,
+          "end_line": 5,
+          "kind": "function",
+          "code": "V103",
+          "name": "helper",
+          "message": "unused function 'helper'",
+          "confidence": 60
+        },
+        {
+          "path": "tests/test_sample.py",
+          "start_line": 10,
+          "end_line": 11,
+          "kind": "class",
+          "code": "V102",
+          "name": "Helper",
+          "message": "unused class 'Helper'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "test-lifecycle-method-ignored",
+      "upstream_test": "tests/test_scavenging.py::test_function_names_in_test_file",
+      "files": [
+        {
+          "path": "tests/test_suite.py",
+          "source": "class TestSuite:\n    def setup_method(self, method):\n        pass\n\n    def custom(self):\n        pass\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V105"
+      ],
+      "expected": [
+        {
+          "path": "tests/test_suite.py",
+          "start_line": 5,
+          "end_line": 6,
+          "kind": "method",
+          "code": "V105",
+          "name": "custom",
+          "message": "unused method 'custom'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "ignore-name-globs",
+      "upstream_test": "tests/test_ignore.py::test_var",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "fio = 1\nfao = 2\nbar = 3\nbaz = 4\nfunny = 5\n"
+        }
+      ],
+      "parse_valid": true,
+      "ignore_names": [
+        "f?o*",
+        "ba[rz]"
+      ],
+      "code_projection": [
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 5,
+          "end_line": 5,
+          "kind": "variable",
+          "code": "V107",
+          "name": "funny",
+          "message": "unused variable 'funny'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "ignore-decorated-function",
+      "upstream_test": "tests/test_ignore.py::test_decorated_functions",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "@app.route(\"/\")\ndef endpoint():\n    pass\n\ndef helper():\n    pass\n"
+        }
+      ],
+      "parse_valid": true,
+      "ignore_decorators": [
+        "@app.route"
+      ],
+      "code_projection": [
+        "V103"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 5,
+          "end_line": 6,
+          "kind": "function",
+          "code": "V103",
+          "name": "helper",
+          "message": "unused function 'helper'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "ignore-decorated-class",
+      "upstream_test": "tests/test_ignore.py::test_decorated_class",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "@registry.register()\nclass Plugin:\n    pass\n\nclass Plain:\n    pass\n"
+        }
+      ],
+      "parse_valid": true,
+      "ignore_decorators": [
+        "@registry.register"
+      ],
+      "code_projection": [
+        "V102"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 5,
+          "end_line": 6,
+          "kind": "class",
+          "code": "V102",
+          "name": "Plain",
+          "message": "unused class 'Plain'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "flake8-noqa-codes",
+      "upstream_test": "tests/test_noqa.py::test_flake8_noqa_codes",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import foo  # noqa: F401\nunused = 1  # noqa: F841\nstill_unused = 2\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104",
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "variable",
+          "code": "V107",
+          "name": "still_unused",
+          "message": "unused variable 'still_unused'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "noqa-code-is-category-specific",
+      "upstream_test": "tests/test_noqa.py::test_noqa_imports",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "import foo  # noqa: V107\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V104"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "import",
+          "code": "V104",
+          "name": "foo",
+          "message": "unused import 'foo'",
+          "confidence": 90
+        }
+      ]
+    },
+    {
+      "id": "unreachable-after-return",
+      "upstream_test": "tests/test_reachability.py::test_return_assignment",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "def foo():\n    return\n    value = 1\n    print(value)\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 4,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "return",
+          "message": "unreachable code after 'return'",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "unreachable-after-raise",
+      "upstream_test": "tests/test_reachability.py::test_raise_assignment",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "def foo():\n    raise RuntimeError()\n    cleanup()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "raise",
+          "message": "unreachable code after 'raise'",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "unreachable-after-break",
+      "upstream_test": "tests/test_reachability.py::test_break_basic",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "for item in items:\n    break\n    consume(item)\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "break",
+          "message": "unreachable code after 'break'",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "unreachable-after-continue",
+      "upstream_test": "tests/test_reachability.py::test_continue_basic",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "for item in items:\n    continue\n    consume(item)\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "continue",
+          "message": "unreachable code after 'continue'",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "unsatisfiable-if",
+      "upstream_test": "tests/test_reachability.py::test_if_false",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "if False:\n    first()\n    second()\nafter()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 3,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "if",
+          "message": "unsatisfiable 'if' condition",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "unreachable-else",
+      "upstream_test": "tests/test_reachability.py::test_if_true",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "if True:\n    live()\nelse:\n    dead()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 4,
+          "end_line": 4,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "else",
+          "message": "unreachable 'else' block",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "redundant-if",
+      "upstream_test": "tests/test_reachability.py::test_redundant_if",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "if True:\n    live()\n"
+        }
+      ],
+      "parse_valid": true,
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 2,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "if",
+          "message": "redundant if-condition",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "unsatisfiable-while",
+      "upstream_test": "tests/test_reachability.py::test_while_false",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "while False:\n    dead()\nafter()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 2,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "while",
+          "message": "unsatisfiable 'while' condition",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "while-true-unreachable-else",
+      "upstream_test": "tests/test_reachability.py::test_while_true_else",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "while True:\n    work()\n    break\nelse:\n    dead()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 5,
+          "end_line": 5,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "else",
+          "message": "unreachable 'else' block",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "while-true-no-break-blocks-tail",
+      "upstream_test": "tests/test_reachability.py::test_while_true_no_fall_through",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "while True:\n    work()\nafter()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "while",
+          "message": "unreachable code after 'while'",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "constant-ternary",
+      "upstream_test": "tests/test_reachability.py::test_if_exp_true",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "value = live() if True else dead()\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V201"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 1,
+          "end_line": 1,
+          "kind": "unreachable_code",
+          "code": "V201",
+          "name": "ternary",
+          "message": "unreachable 'else' expression",
+          "confidence": 100
+        }
+      ]
+    },
+    {
+      "id": "format-locals-marks-variable-used",
+      "upstream_test": "tests/test_format_strings.py::test_new_format_string",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "name = \"Ada\"\n\"{name}\".format(**locals())\nunused = 1\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 3,
+          "end_line": 3,
+          "kind": "variable",
+          "code": "V107",
+          "name": "unused",
+          "message": "unused variable 'unused'",
+          "confidence": 60
+        }
+      ]
+    },
+    {
+      "id": "match-class-keywords-mark-fields-used",
+      "upstream_test": "tests/test_scavenging.py::test_match_class_simple",
+      "files": [
+        {
+          "path": "case.py",
+          "source": "class Point:\n    x: int\n    y: int\n    z: int\n\npoint = input()\nmatch point:\n    case Point(x=0, y=0):\n        pass\n"
+        }
+      ],
+      "parse_valid": true,
+      "code_projection": [
+        "V107"
+      ],
+      "expected": [
+        {
+          "path": "case.py",
+          "start_line": 4,
+          "end_line": 4,
+          "kind": "variable",
+          "code": "V107",
+          "name": "z",
+          "message": "unused variable 'z'",
+          "confidence": 60
+        }
+      ]
+    }
+  ]
+}

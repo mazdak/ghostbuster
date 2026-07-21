@@ -1,0 +1,251 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  validate:
+    name: Validate release metadata
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate tag, package version, changelog, and branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tags must look like v1.2.3, got: $tag" >&2
+            exit 1
+          fi
+          package_version="$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name == "ghostbuster") | .version')"
+          if [[ "v${package_version}" != "$tag" ]]; then
+            echo "Tag $tag does not match Cargo version $package_version" >&2
+            exit 1
+          fi
+          grep -F "## [${package_version}]" CHANGELOG.md >/dev/null
+          git fetch origin master:refs/remotes/origin/master
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/master
+
+  archives:
+    name: Native archive (${{ matrix.target }})
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+            asset: ghostbuster-x86_64-unknown-linux-musl.tar.gz
+            binary: ghostbuster
+            format: tar
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+            asset: ghostbuster-aarch64-unknown-linux-musl.tar.gz
+            binary: ghostbuster
+            format: tar
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            asset: ghostbuster-x86_64-apple-darwin.tar.gz
+            binary: ghostbuster
+            format: tar
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            asset: ghostbuster-aarch64-apple-darwin.tar.gz
+            binary: ghostbuster
+            format: tar
+          - runner: windows-2025
+            target: x86_64-pc-windows-msvc
+            asset: ghostbuster-x86_64-pc-windows-msvc.zip
+            binary: ghostbuster.exe
+            format: zip
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
+        with:
+          toolchain: 1.97.0
+          targets: ${{ matrix.target }}
+
+      - name: Install musl linker
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install --yes musl-tools
+
+      - name: Build release binary
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
+          CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
+        run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - name: Package Unix archive
+        if: matrix.format == 'tar'
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="ghostbuster-${{ matrix.target }}"
+          mkdir -p "artifacts/$package"
+          cp "target/${{ matrix.target }}/release/${{ matrix.binary }}" README.md CHANGELOG.md LICENSE THIRD_PARTY.md THIRD_PARTY.html "artifacts/$package/"
+          tar -C artifacts -czf "artifacts/${{ matrix.asset }}" "$package"
+          if command -v sha256sum >/dev/null; then
+            (cd artifacts && sha256sum "${{ matrix.asset }}" > "${{ matrix.asset }}.sha256")
+          else
+            (cd artifacts && shasum -a 256 "${{ matrix.asset }}" > "${{ matrix.asset }}.sha256")
+          fi
+
+      - name: Package Windows archive
+        if: matrix.format == 'zip'
+        shell: pwsh
+        run: |
+          $package = "ghostbuster-${{ matrix.target }}"
+          New-Item -ItemType Directory -Force "artifacts/$package" | Out-Null
+          Copy-Item "target/${{ matrix.target }}/release/${{ matrix.binary }}", "README.md", "CHANGELOG.md", "LICENSE", "THIRD_PARTY.md", "THIRD_PARTY.html" "artifacts/$package/"
+          Compress-Archive -Path "artifacts/$package" -DestinationPath "artifacts/${{ matrix.asset }}"
+          $hash = (Get-FileHash "artifacts/${{ matrix.asset }}" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  ${{ matrix.asset }}" | Set-Content -NoNewline "artifacts/${{ matrix.asset }}.sha256"
+
+      - name: Attest archive provenance
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: artifacts/${{ matrix.asset }}
+
+      - name: Upload archive
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: archive-${{ matrix.target }}
+          path: |
+            artifacts/${{ matrix.asset }}
+            artifacts/${{ matrix.asset }}.sha256
+          if-no-files-found: error
+
+  wheels:
+    name: Python wheel (${{ matrix.target }})
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            manylinux: "2014"
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            manylinux: "2014"
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            manylinux: "off"
+          - runner: macos-15
+            target: aarch64-apple-darwin
+            manylinux: "off"
+          - runner: windows-2025
+            target: x86_64-pc-windows-msvc
+            manylinux: "off"
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build wheel
+        uses: PyO3/maturin-action@e83996d129638aa358a18fbd1dfb82f0b0fb5d3b # v1.51.0
+        with:
+          target: ${{ matrix.target }}
+          manylinux: ${{ matrix.manylinux }}
+          maturin-version: v1.14.1
+          rust-toolchain: 1.97.0
+          args: --release --locked --compatibility pypi --out dist --strip
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: false
+
+      - name: Smoke-test wheel
+        shell: bash
+        run: uv tool run --from "$(find dist -name '*.whl' -print -quit)" ghostbuster --version
+
+      - name: Attest wheel provenance
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
+        with:
+          subject-path: dist/*.whl
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: wheel-${{ matrix.runner }}-${{ matrix.target }}
+          path: dist/*.whl
+          if-no-files-found: error
+
+  github-release:
+    name: Publish GitHub release
+    needs: [archives, wheels]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Download native archives
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: archive-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Download Python wheels
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: wheel-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release-assets/* --verify-tag --generate-notes --title "Ghostbuster ${GITHUB_REF_NAME#v}"
+
+  pypi:
+    name: Publish PyPI wheels
+    needs: wheels
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ghostbuster-code/
+    permissions:
+      id-token: write
+    steps:
+      - name: Download Python wheels
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: wheel-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish with PyPI trusted publishing
+        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247 # v1.14.1
+        with:
+          packages-dir: dist

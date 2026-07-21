@@ -1,0 +1,46 @@
+[build-system]
+build-backend = "maturin"
+requires = [ "maturin>=1.14,<2" ]
+
+[project]
+name = "ghostbuster-code"
+description = "Find dead Python code with Ruff's Rust parser"
+readme = "README.md"
+keywords = [ "dead-code", "lint", "python", "ruff", "vulture" ]
+license = "MIT"
+license-files = [
+  "LICENSE",
+  "THIRD_PARTY.md",
+  "THIRD_PARTY.html",
+  "vendor/ruff/LICENSE",
+  "tests/vulture/LICENSE",
+]
+authors = [ { name = "Mazdak Rezvani" } ]
+requires-python = ">=3.9"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Rust",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dynamic = [ "version" ]
+urls.Documentation = "https://github.com/mazdak/ghostbuster#readme"
+urls.Homepage = "https://github.com/mazdak/ghostbuster"
+urls.Issues = "https://github.com/mazdak/ghostbuster/issues"
+urls.Source = "https://github.com/mazdak/ghostbuster"
+
+[tool.maturin]
+bindings = "bin"
+strip = true
+locked = true

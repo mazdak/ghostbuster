@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a focused analyzer, CLI, or compatibility improvement
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What dead-code workflow is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Vulture or Ruff behavior
+      description: Link or describe relevant existing behavior when applicable.
