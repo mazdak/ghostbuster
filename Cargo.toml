@@ -17,7 +17,7 @@ publish = false
 clap = { version = "4.5.54", features = ["derive"] }
 codepage-strings = "1.0.2"
 encoding_rs = "0.8.35"
-get-size2 = "=0.10.1"
+get-size2 = "=0.11.0"
 globset = "0.4.18"
 ignore = "0.4.25"
 ruff_python_ast = { path = "vendor/ruff/crates/ruff_python_ast", version = "0.0.5" }
