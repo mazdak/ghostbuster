@@ -34,7 +34,7 @@ jobs:
           components: clippy, rustfmt
 
       - name: Cache Rust builds
-        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
 
       - name: Fetch locked dependencies
         run: cargo fetch --locked
@@ -66,7 +66,7 @@ jobs:
           toolchain: 1.95.0
 
       - name: Cache Rust builds
-        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           key: msrv
 
@@ -101,7 +101,7 @@ jobs:
         run: actionlint
 
       - name: Audit GitHub Actions security
-        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
         with:
           version: 1.27.0
           advanced-security: false
@@ -120,7 +120,7 @@ jobs:
           rust-version: 1.97.0
 
       - name: Install cargo-about
-        uses: taiki-e/install-action@a6b2e2dcd845ddd7f509ce4f3ed3d922b80cc5d9 # v2.84.0
+        uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad # v2.87.26
         with:
           tool: cargo-about@0.9.1
 
@@ -148,14 +148,14 @@ jobs:
           args: --release --locked --compatibility pypi --out dist --strip
 
       - name: Install uv
-        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
 
       - name: Smoke-test the wheel
         shell: bash
         run: uv tool run --from "$(find dist -name '*.whl' -print -quit)" ghostbuster --version
 
       - name: Upload the wheel
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: wheel-smoke-test
           path: dist/*.whl
